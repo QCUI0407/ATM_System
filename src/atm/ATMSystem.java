@@ -62,7 +62,7 @@ public class ATMSystem {
             // 3.search card bu id
             Account acc = getAccountByCardId(cardId, accounts);
             if (acc != null) {
-                //keep try pw untill pw is correct
+                // keep try pw untill pw is correct
                 while (true) {
                     // card ifno find
                     // 4. enter PW
@@ -72,6 +72,10 @@ public class ATMSystem {
                     if (acc.getPassWord().equals(password)) {
                         // true, success
                         System.out.println("Welcome " + acc.getUserName() + "ID: " + acc.getCardId());
+
+                        // all funtion after login
+                        showUserCommand(sc, acc);
+                        return; // stop login method
                     } else {
                         System.out.println("Password is wrong!!!");
                     }
@@ -81,6 +85,125 @@ public class ATMSystem {
             }
         }
 
+    }
+
+    /*
+     * interface after login
+     */
+
+    private static void showUserCommand(Scanner sc, Account acc) {
+        while (true) {
+            System.out.println("===================Welcom " + acc.getUserName() + "===================");
+            System.out.println("1. Account detail");
+            System.out.println("2. Deposit");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Transfer money");
+            System.out.println("5. Change password");
+            System.out.println("6. Logout");
+            System.out.println("7. Close account");
+            System.out.println("Please select a number: ");
+            int command = sc.nextInt();
+            switch (command) {
+                case 1:
+                    // Account detail
+                    showAccount(acc);
+                    break;
+                case 2:
+                    // Deposit
+                    depositMoney(acc, sc);
+                    break;
+                case 3:
+                    // Withdraw
+                    drawMoney(acc, sc);
+                    break;
+                case 4:
+                    // Transfer money
+                    break;
+                case 5:
+                    // Change password
+                    break;
+                case 6:
+                    // Logout
+                    System.out.println("BYE BYE!");
+                    return; // ***Stop the current method from executing (showUserCommand)
+                case 7:
+                    // Close account"
+                    break;
+
+                default:
+                    System.out.println("The number your selected not find.");
+            }
+        }
+    }
+
+    /*
+     * withdraw
+     * 
+     * @param acc -- current account
+     * 
+     * @param sc -- Scanner
+     */
+    private static void drawMoney(Account acc, Scanner sc) {
+        System.out.println("===================Withdraw===================");
+        // 1.blance need higher than Minimum withdrawal amount
+        if (acc.getMoney() < 20) {
+            System.out.println("Sorry, the current account balance is less than $20. Cannot withdraw money use ATM");
+            return;
+        }
+        while (true) {
+            // 2. enter withdarw amount
+            System.out.println("Enter withdraw amount: ");
+            double money = sc.nextDouble();
+
+            // 3. Judgment
+            if (money > acc.getQuotaMoney()) {
+                System.out.println("Sorry, your quota is : $" + acc.getQuotaMoney());
+            } else {
+                //not over quota
+                //4. check is account has enough money
+                if(money > acc.getMoney()){
+                    System.out.println("Insufficient account balance. Current blance is : $" + acc.getMoney());
+                }else{
+                    // withdraw money
+                    System.out.println("Withdraw $"+money);
+                    //update blance
+                    acc.setMoney(acc.getMoney() - money);
+                    //done, show updated account detial
+                    showAccount(acc);
+                    return; //stop (drawMoney)
+                }
+
+            }
+        }
+    }
+
+    /*
+     * deposit
+     * 
+     * @param acc -- current account
+     * 
+     * @param sc -- Scanner
+     */
+    private static void depositMoney(Account acc, Scanner sc) {
+        System.out.println("===================Deposit===================");
+        System.out.println("Enter the deposit amount:");
+        double money = sc.nextDouble();
+
+        // updata blance of account: the balance + deposit
+        acc.setMoney(acc.getMoney() + money);
+        System.out.println("Deposit completed. Current account information:");
+        showAccount(acc);
+    }
+
+    /*
+     * show account detail
+     */
+    private static void showAccount(Account acc) {
+        System.out.println("===================Account Details===================");
+        System.out.println("ID: " + acc.getCardId());
+        System.out.println("User: " + acc.getUserName());
+        System.out.println("Balance: $" + acc.getMoney());
+        System.out.println("Quota: $" + acc.getQuotaMoney());
     }
 
     /*
@@ -99,10 +222,10 @@ public class ATMSystem {
         account.setUserName(userName);
 
         while (true) {
-        System.out.println("Enter password: ");
-        String passWord = sc.next();
-        System.out.println("Confirm password: ");
-        String confirmPassWord = sc.next();
+            System.out.println("Enter password: ");
+            String passWord = sc.next();
+            System.out.println("Confirm password: ");
+            String confirmPassWord = sc.next();
             if (confirmPassWord.equals(passWord)) {
                 // pw comfirm same
                 account.setPassWord(confirmPassWord);
@@ -112,7 +235,7 @@ public class ATMSystem {
             }
         }
 
-        System.out.println("Enter withdrawal amount: ");
+        System.out.println("Enter quota amount: ");
         double quotaMoney = sc.nextDouble();
         account.setQuotaMoney(quotaMoney);
 
