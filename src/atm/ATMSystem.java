@@ -74,7 +74,7 @@ public class ATMSystem {
                         System.out.println("Welcome " + acc.getUserName() + "ID: " + acc.getCardId());
 
                         // all funtion after login
-                        showUserCommand(sc, acc);
+                        showUserCommand(sc, acc, accounts);
                         return; // stop login method
                     } else {
                         System.out.println("Password is wrong!!!");
@@ -91,7 +91,7 @@ public class ATMSystem {
      * interface after login
      */
 
-    private static void showUserCommand(Scanner sc, Account acc) {
+    private static void showUserCommand(Scanner sc, Account acc, ArrayList<Account> accounts) {
         while (true) {
             System.out.println("===================Welcom " + acc.getUserName() + "===================");
             System.out.println("1. Account detail");
@@ -118,6 +118,7 @@ public class ATMSystem {
                     break;
                 case 4:
                     // Transfer money
+                    transferMoney(sc, acc, accounts);
                     break;
                 case 5:
                     // Change password
@@ -132,6 +133,80 @@ public class ATMSystem {
 
                 default:
                     System.out.println("The number your selected not find.");
+            }
+        }
+    }
+    /*
+     * transfer
+     * 
+     * @param sc --- Scanner
+     * 
+     * @param acc --- user's account
+     * 
+     * @param accounts --- all accounts in the system
+     */
+
+    private static void transferMoney(Scanner sc, Account acc, ArrayList<Account> accounts) {
+        System.out.println("===================Transfer===================");
+        // 1. check has 2 or more account
+        if (accounts.size() < 2) {
+            System.out.println("Do not have 2 or more accounts do the transfer.");
+            return; // stop current method
+        }
+
+        // 2. check blance
+        if (acc.getMoney() == 0) {
+            System.out.println("Donot have enough money.");
+            return; // stop current method
+        }
+
+        while (true) {
+            // 3.start transfer checks
+            System.out.println("Please enter orther side account number: ");
+            String cardId = sc.next();
+
+            // cardId can not be user's ID
+            if (cardId.equals(acc.getCardId())) {
+                System.out.println("You can not trasnfer money to yourself.");
+                continue; // stop this time loop, run next round Infinite loop
+            }
+
+            // Check if the card number exists
+            Account account = getAccountByCardId(cardId, accounts);
+            if (account == null) {
+                System.out.println("Sorry, this card number not exist");
+            } else {
+                // find orther side account
+                // Continue to confirm that the is correct account.
+                String userName = account.getUserName();
+                // String fname = userName.split(" ")[0];
+                // String lname = userName.split(" ")[1];
+                String tip = "*" + userName.substring(1);
+                System.out.println("Enter the [" + tip + "]'s first letter");
+                String lastName = sc.next();
+
+                // check last name
+                // if (lname.equalsIgnoreCase(lastName)) {
+                    if(userName.startsWith(lastName)){
+                    while (true) {
+                        // pass
+                        System.out.println("Enter transfer amount: ");
+                        double amount = sc.nextDouble();
+                        // check blance in account
+                        if (amount > acc.getMoney()) {
+                            System.out.println("You donot have enough blance. Your blance is: $" + acc.getMoney());
+                        }else{
+                            //enough blance, start transfer
+                            acc.setMoney(acc.getMoney() - amount);//update user blance
+                            account.setMoney(account.getMoney() + amount);//update orther side blance
+                            System.out.println("Transfer completed. Current balance is: $" + acc.getMoney());
+                            return;//stop (transfer)
+                        }
+                    }
+                } else {
+                    System.out.println("Erro Input!");
+                }
+
             }
         }
     }
@@ -159,18 +234,18 @@ public class ATMSystem {
             if (money > acc.getQuotaMoney()) {
                 System.out.println("Sorry, your quota is : $" + acc.getQuotaMoney());
             } else {
-                //not over quota
-                //4. check is account has enough money
-                if(money > acc.getMoney()){
+                // not over quota
+                // 4. check is account has enough money
+                if (money > acc.getMoney()) {
                     System.out.println("Insufficient account balance. Current blance is : $" + acc.getMoney());
-                }else{
+                } else {
                     // withdraw money
-                    System.out.println("Withdraw $"+money);
-                    //update blance
+                    System.out.println("Withdraw $" + money);
+                    // update blance
                     acc.setMoney(acc.getMoney() - money);
-                    //done, show updated account detial
+                    // done, show updated account detial
                     showAccount(acc);
-                    return; //stop (drawMoney)
+                    return; // stop (drawMoney)
                 }
 
             }
