@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+import javax.print.DocFlavor.STRING;
+
 /*
  * ATM system 
  */
@@ -122,20 +124,97 @@ public class ATMSystem {
                     break;
                 case 5:
                     // Change password
-                    break;
+                    updatePassword(sc, acc);
+                    return;
                 case 6:
                     // Logout
                     System.out.println("BYE BYE!");
                     return; // ***Stop the current method from executing (showUserCommand)
                 case 7:
-                    // Close account"
-                    break;
+                    // Close account
+                    if (deleteAccount(acc, sc, accounts)) {
+                        //account closed
+                        return;
+                    } else {
+                        //keep account
+                        break;
+                    }
 
                 default:
                     System.out.println("The number your selected not find.");
             }
         }
     }
+
+    /**
+     * delete account
+     * 
+     * @param sc       --- Scanner
+     * @param acc      --- user's account
+     * @param accounts --- all accounts
+     */
+
+    private static boolean deleteAccount(Account acc, Scanner sc, ArrayList<Account> accounts) {
+        System.out.println("===================Close Account===================");
+        System.out.println("Delete Account? [Y/N]");
+        String re = sc.next();
+        switch (re) {
+            case "y":
+                if (acc.getMoney() > 0) {
+                    System.out.println("The account still has a balance. Cont not close accoun.");
+                } else {
+                    accounts.remove(acc);
+                    System.out.println("Your account has been closed.");
+                    return true; // closing account succeeded.
+                }
+
+                break;
+
+            default:
+                System.out.println("Keep account.");
+        }
+        return false;
+    }
+
+    /*
+     * change PW
+     * 
+     * @param sc --- Scanner
+     * 
+     * @param acc --- user's account
+     */
+    private static void updatePassword(Scanner sc, Account acc) {
+        System.out.println("===================Change Password===================");
+        while (true) {
+            System.out.println("Enter current password: ");
+            String password = sc.next();
+            // 1.check PW
+            if (acc.getPassWord().equals(password)) {
+                while (true) {
+                    // correct //2. enter new PW
+                    System.out.println("Enter new password: ");
+                    String newPasword = sc.next();
+
+                    System.out.println("Please enter new password again: ");
+                    String comfirmNewPassword = sc.next();
+
+                    if (newPasword.equals(comfirmNewPassword)) {
+                        // PW 2 times same
+                        acc.setPassWord(comfirmNewPassword);
+                        System.out.println("Password changed.");
+                        return;
+                    } else {
+                        System.out.println("Password enter not same!");
+                    }
+                }
+
+            } else {
+                System.out.println("Password is wrong!");
+            }
+        }
+
+    }
+
     /*
      * transfer
      * 
@@ -145,7 +224,6 @@ public class ATMSystem {
      * 
      * @param accounts --- all accounts in the system
      */
-
     private static void transferMoney(Scanner sc, Account acc, ArrayList<Account> accounts) {
         System.out.println("===================Transfer===================");
         // 1. check has 2 or more account
@@ -187,7 +265,7 @@ public class ATMSystem {
 
                 // check last name
                 // if (lname.equalsIgnoreCase(lastName)) {
-                    if(userName.startsWith(lastName)){
+                if (userName.startsWith(lastName)) {
                     while (true) {
                         // pass
                         System.out.println("Enter transfer amount: ");
@@ -195,12 +273,12 @@ public class ATMSystem {
                         // check blance in account
                         if (amount > acc.getMoney()) {
                             System.out.println("You donot have enough blance. Your blance is: $" + acc.getMoney());
-                        }else{
-                            //enough blance, start transfer
-                            acc.setMoney(acc.getMoney() - amount);//update user blance
-                            account.setMoney(account.getMoney() + amount);//update orther side blance
+                        } else {
+                            // enough blance, start transfer
+                            acc.setMoney(acc.getMoney() - amount);// update user blance
+                            account.setMoney(account.getMoney() + amount);// update orther side blance
                             System.out.println("Transfer completed. Current balance is: $" + acc.getMoney());
-                            return;//stop (transfer)
+                            return;// stop (transfer)
                         }
                     }
                 } else {
